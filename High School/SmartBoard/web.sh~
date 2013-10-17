@@ -1,0 +1,5 @@
+#!/bin/bash
+# web.sh --- http://localhost:9000/helloworld
+
+
+HEAD= "HTTP/1.0 200 OK\nCache-Control: private\nContent-Type: image/jpg\nConnection: Close\nContent-Length:\n\n"

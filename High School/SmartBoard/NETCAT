@@ -1,0 +1,113 @@
+NETCAT
+
+Create SERVER CLIENT with NETCAT where SERVER sends out stdin and CLIENT echos
+
+SERVER: nc -l 3333
+
+CLIENT nc 10.1.4.157 3333
+
+Explination : 
+SERVER: nc without input takes in stdin 
+	When running type and press enter -> CLIENT
+
+Create Server Client in which the server sends out a command to be executed by the client
+
+
+SERVER: nc -vvv -l 3333
+CLIENT: nc 10.1.4.157 3333 > image.sh ;\
+chmod 777 image.sh ;\
+./image.sh
+
+
+
+Server: convert -flip "smartboard.jpg" "smartboardflip.jpg" ;\
+	cat "smartboardflip.jpg" | nc -vvv -l 3333
+Client: nc 10.1.4.157 3333 > smartboardflip.jpg
+
+FILE imageflip.jpg already has to exist
+Server: wget "http://10.1.50.1/image.jpg" | convert -flip image.jpg imageflip.jpg ;\
+	cat "imageflip.jpg" | nc -vvv -l 3333 ;\
+Client: nc 10.1.4.157  3333> image.jpg
+
+Serve a file from camera
+Server:	touch "imageflip.jpg" ; while true ;\
+	do wget "http://10.1.50.1/image.jpg" ;\
+	cat "image.jpg" | convert -flip image.jpg imageflip.jpg ;\
+	cat "imageflip.jpg" | nc -vvv -l 3333 ;\
+	rm "image.jpg" ; done
+Take Image and tile it
+Client: nc 10.1.4.157 3333 > image.jpg ;\
+	convert -normalize image.jpg image-norm.jpg ;\
+	convert image-norm.jpg -colorspace Gray -edge 1 -negate image-edge.jpg ;\
+	convert image-edge.jpg -sample 128x96 image-resized.jpg ;\
+	convert image-resized.jpg -crop 256x192 +adjoin board-tiles%02d.jpg ;\
+	
+FTP SERVER (must be root)(ftp directory must be chmod 755) /etc/init.d/vsftpd start
+Checking FTP STATUS : netstat -a | grep ftp
+LOCATION OF FILES /var/ftp/pub
+Connect to FTP SERVER : ftp 10.1.4.157
+Get Image.jpg
+Put Image.jpg
+
+SERVER: while true ; do wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image{1-10}.jpg ; done
+SERVER: while true ;
+do wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image1.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image2.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image3.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image4.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image5.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image6.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image7.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image8.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image9.jpg ;\
+wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image10.jpg\; done
+CLIENT: ftp 10.1.4.157
+username:anonymous
+Password:
+prompt
+mget *.jpg
+
+
+
+http://linuxsig.org/files/bash_scripting.html
+http://www.comptechdoc.org/os/linux/programming/script/linux_pgscriptvariables.html
+http://www.linuxjournal.com/article/8692
+http://linux.about.com/library/cmd/blcmdl1_shift.htm
+;map
+map () {
+  if [ $# = 1 ]; then
+    return
+  else
+    local FIRST=$1
+    local SECOND=$2
+    shift 2
+    local REST=$@ 
+    $FIRST $SECOND 
+    map "$FIRST" $REST
+  fi
+}
+http://www.linuxjournal.com/article/8692
+http://rcsg-gsir.imsb-dsgi.nrc-cnrc.gc.ca/documents/bourne/node27.html
+;create multiple files
+;fast but no processing
+
+
+
+
+;;;;;;;;;;;;;;;;;;server;;;;;;;;;;;;;;;;;
+
+while true ; do for n in `date +%s` ; do wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/${n}.jpg ; convert /var/ftp/pub/${n}.jpg -rotate 180 -crop 1024x768-256+300 -crop 768x468+48+282 +repage; done ; done
+
+while true ; do for n in `date +%s` ; do wget "http://10.1.50.1/image.jpg" -O /home/dvisher/${n}.jpg ;done ; done
+
+
+
+
+;slow but processing
+while true ; do for n in `seq 001 500` ; do wget "http://10.1.50.1/image.jpg" -O /var/ftp/pub/image${n}.jpg ; convert /var/ftp/pub/image${n}.jpg -normalize -rotate 180 -crop 1024x768-256+300 -crop 768x468+48+282 +repage -fx '(r+g+b)/3' /var/ftp/pub/image-new${n}.png ; done ; done
+
+for n in `seq 01 60` ; do convert /var/ftp/pub/image${n}.jpg -normalize -rotate 180 -crop 1024x768-256+300 -crop 768x468+48+282 -resize 16x10! -monochrome /home/dvisher/ai/CAMERA/OriginalsN1/image-new${n}.png ; done 
+
+from the monochrome photo
+for n in `seq 1 9` ;do convert /home/dvisher/ai/CAMERA/OriginalsN1/image-new0${n}.png -resize 24x15! /home/dvisher/ai/CAMERA/OriginalsN1/imagenew0${n}.png ; done
+
